@@ -11,5 +11,6 @@
 ## For Windows 10-11
 1. Open Powershell as Administrator
 2. Enter: ```irm https://sevcator.github.io/zapret.ps1 | iex```
+   
 ** Canary: ```irm https://sevcator.github.io/zapret-canary.ps1 | iex```
 4. Done
