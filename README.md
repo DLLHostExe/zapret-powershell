@@ -13,6 +13,6 @@
    
 3. Enter: ```irm https://sevcator.github.io/zapret.ps1 | iex```
    
-**Canary:** ```irm https://sevcator.github.io/zapret-canary.ps1 | iex```
+**    Canary:** ```irm https://sevcator.github.io/zapret-canary.ps1 | iex```
 
 4. Done
