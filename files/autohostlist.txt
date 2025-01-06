@@ -25,3 +25,7 @@ soundcloud.cloud
 cloudflare-ech.com
 amazon.com
 amazonaws.com
+lolz.guru
+zelenka.guru
+lolz.live
+
