@@ -101,10 +101,10 @@ if (-not (Test-Path $folderPath)) {
     New-Item -Path $folderPath -ItemType Directory | Out-Null
 }
 # Source - Github: censorliber/zapret
-param (
-    [string]$provider = ""
-)
 function Set-DNS {
+    param (
+        [string]$provider = ""
+    )
     $primaryDNS = ""
     $secondaryDNS = ""
     $primaryDNSv6 = ""
