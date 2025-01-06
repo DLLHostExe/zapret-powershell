@@ -55,6 +55,7 @@ if (Check-ProcessorArchitecture) {
 if (Test-Path "$folderPath\uninstall.cmd") {
     & "$folderPath\uninstall.cmd" *> $null
 }
+# Source: GitHub - censorliber/zapret
 function Set-DNS {
     $provider = ""
 
