@@ -58,7 +58,7 @@ function Set-DNS {
     $provider = ""
 
     if (-not $provider) {
-        $provider = Read-Host "Enter DNS provider (google/cloudflare/dnssb): "
+        $provider = Read-Host "- Enter DNS provider (google/cloudflare/dnssb): "
     }
 
     $primaryDNS = ""
@@ -109,7 +109,7 @@ function Set-DNS {
             Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNS, $secondaryDNS -ErrorAction Stop
             if ($primaryDNSv6 -and $secondaryDNSv6) {
                 Write-Host "- Setting DNS for $($interface.InterfaceAlias): IPv6 ($primaryDNSv6, $secondaryDNSv6)"
-                Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNSv6, $secondaryDNSv6 -AddressFamily IPv6 -ErrorAction Stop
+                Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNSv6, $secondaryDNSv6 -ErrorAction Stop
             }
         } catch {
             Write-Host "- Failed to set DNS server for $($interface.InterfaceAlias): $_" -ForegroundColor Yellow
