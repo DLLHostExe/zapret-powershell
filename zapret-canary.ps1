@@ -59,10 +59,7 @@ if (Test-Path "$folderPath\uninstall.cmd") {
 function Set-DNS {
     $provider = ""
 
-    if ($args.Count -ge 1) {
-        return
-    } else {
-        Write-Host "- No DNS provider specified."
+    if (-not $provider) {
         $provider = Read-Host "Enter DNS provider (google/cloudflare/dnssb): "
     }
 
@@ -91,7 +88,7 @@ function Set-DNS {
             $secondaryDNSv6 = "2a09::1"
         }
         default {
-            Write-Host "- Error: Unsupported DNS provider '$provider'. Supported options are 'google', 'cloudflare', or 'dnssb'." -ForegroundColor Yellow
+            Write-Host "- Error: Unsupported DNS provider $provider. Supported options are google, cloudflare, or dnssb" -ForegroundColor Yellow
             return
         }
     }
@@ -119,7 +116,7 @@ function Set-DNS {
         }
     }
 }
-
+Set-DNS
 Write-Host "- Terminating processes"
 $processesToKill = @("GoodbyeDPI.exe", "winws.exe", "zapret.exe")
 foreach ($process in $processesToKill) {
