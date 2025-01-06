@@ -173,7 +173,6 @@ try {
 } catch {
     Write-Host "- Error adding exclusion? If you have another AntiMalware software, add exclusion C:\Windows\Zapret\winws.exe, C:\Windows\Zapret\WinDivert.dll, C:\Windows\Zapret\WinDivert64.sys" -ForegroundColor Yellow
 }
-
 Write-Host "- Downloading files"
 $files = @(
     @{Url = "https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert.dll"; Name = "WinDivert.dll"},
@@ -195,7 +194,6 @@ foreach ($file in $files) {
         Write-Host ("{0}: {1}" -f $($file.Name), $_.Exception.Message) -ForegroundColor Red
     }
 }
-
 Set-Location $folderPath | Out-Null
 Write-Host "- Creating service"
 try {
@@ -204,7 +202,35 @@ try {
 } catch {
     Write-Host ("Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
 }
+$applications = @(
+    "msedge.exe",
+    "chrome.exe",
+    "opera.exe",
+    "firefox.exe",
+    "Discord.exe",
+    "DiscordPTB.exe",
+    "DiscordCanary.exe",
+    "Soundcloud.exe",
+    "soundcloud.exe"
+)
+function Restart-Application {
+    Get-Process -Name $using:app -ErrorAction SilentlyContinue | Stop-Process -Force
+    Start-Sleep -Seconds 1
 
+    Start-Process $using:app -ErrorAction SilentlyContinue
+}
+foreach ($app in $applications) {
+    $process = Get-Process -Name $app -ErrorAction SilentlyContinue
+    if ($process) {
+        $response = Read-Host "- The process $app is found. Would you restart it? (y): "
+
+        if ($response -eq "y") {
+            Restart-Application
+        }
+    } else {
+        Write-Host "- Process $app not found"
+    }
+}
 Write-Host "- Done!"
 Write-Host "- To remove Zapret, run script located in $folderPath\uninstall.cmd as administrator!"
 Write-Host "*** sevcator.t.me / sevcator.github.io ***"
