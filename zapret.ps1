@@ -55,13 +55,11 @@ if (Check-ProcessorArchitecture) {
 if (Test-Path "$folderPath\uninstall.cmd") {
     & "$folderPath\uninstall.cmd" *> $null
 }
-
 Write-Host "- Terminating processes"
 $processesToKill = @("GoodbyeDPI.exe", "winws.exe", "zapret.exe")
 foreach ($process in $processesToKill) {
     Stop-Process -Name $process -Force -ErrorAction SilentlyContinue | Out-Null
 }
-
 Write-Host "- Removing services"
 $servicesToStop = @("zapret", "winws1", "goodbyedpi", "windivert", "windivert14")
 foreach ($service in $servicesToStop) {
@@ -113,7 +111,6 @@ try {
 } catch {
     Write-Host "- Error adding exclusion? If you have another AntiMalware software, add exclusion C:\Windows\Zapret\winws.exe, C:\Windows\Zapret\WinDivert.dll, C:\Windows\Zapret\WinDivert64.sys" -ForegroundColor Yellow
 }
-
 Write-Host "- Downloading files"
 $files = @(
     @{Url = "https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert.dll"; Name = "WinDivert.dll"},
@@ -135,7 +132,6 @@ foreach ($file in $files) {
         Write-Host ("{0}: {1}" -f $($file.Name), $_.Exception.Message) -ForegroundColor Red
     }
 }
-
 Set-Location $folderPath | Out-Null
 Write-Host "- Creating service"
 try {
@@ -144,7 +140,6 @@ try {
 } catch {
     Write-Host ("Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
 }
-
 Write-Host "- Done!"
 Write-Host "- To remove Zapret, run script located in $folderPath\uninstall.cmd as administrator!"
 Write-Host "*** sevcator.t.me / sevcator.github.io ***"
