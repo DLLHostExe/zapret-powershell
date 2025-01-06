@@ -102,15 +102,20 @@ if (-not (Test-Path $folderPath)) {
 }
 # Source - Github: censorliber/zapret
 function Set-DNS {
+    $provider = ""
+    
     $primaryDNS = ""
     $secondaryDNS = ""
     $primaryDNSv6 = ""
     $secondaryDNSv6 = ""
 
-    if ($provider -eq "") {
+    if ($args.Count -ge 1) {
+        $provider = $args[0].ToLower()
+    } else {
         Write-Host "- No DNS-provider specifed. You can add DNS-provider in execution, like this:" -ForegroundColor Yellow
-	Write-Host "irm https://sevcator.github.io/zapret.ps1 | iex; Set-DNS -provider cloudflare" -ForegroundColor Yellow
-        return
+	Write-Host "irm https://sevcator.github.io/zapret.ps1 | iex; Set-DNS -provider <Provider>" -ForegroundColor Yellow
+        Write-Host "<Provider> = google / cloudflare / dnssb" -ForegroundColor Yellow
+	return
     }
 
     switch ($provider.ToLower()) {
@@ -133,7 +138,7 @@ function Set-DNS {
             $secondaryDNSv6 = "2a09::1"
         }
         default {
-            Write-Host "- Error: Unsupported DNS provider '$provider'. Supported options are 'google', 'cloudflare', or 'dnssb'." -ForegroundColor Yellow
+	    Write-Host "- Invaild DNS-provider!" -ForegroundColor Yellow
             return
         }
     }
@@ -153,8 +158,8 @@ function Set-DNS {
     foreach ($interface in $interfaces) {
         try {
             Write-Host "- Setting $primaryDNS/$secondaryDNS (IPv4) for interface $($interface.InterfaceAlias)"
-            Write-Host "- Setting $primaryDNSv6/$secondaryDNSv6 (IPv6) for interface $($interface.InterfaceAlias)"
             Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNS, $secondaryDNS -ErrorAction Stop
+            Write-Host "- Setting $primaryDNSv6/$secondaryDNSv6 (IPv6) for interface $($interface.InterfaceAlias)"
             Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNSv6, $secondaryDNSv6 -AddressFamily IPv6 -ErrorAction Stop
         } catch {
             Write-Host "- Failed to set DNS server for $($interface.InterfaceAlias): $_" -ForegroundColor Yellow
