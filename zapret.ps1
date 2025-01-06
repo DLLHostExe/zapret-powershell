@@ -30,7 +30,7 @@ function Check-Admin {
 }
 if (-not (Check-Admin)) {
     Add-Type -AssemblyName System.Windows.Forms 
-    [System.Windows.Forms.MessageBox]::Show("zapret-sevcator | Run as administrator rights!")
+    Write-Host "- Run PowerShell as administrator rights!"
     return
 }
 $initialDirectory = Get-Location
@@ -100,7 +100,73 @@ if (Test-Path $folderPath) {
 if (-not (Test-Path $folderPath)) {
     New-Item -Path $folderPath -ItemType Directory | Out-Null
 }
+# Source - Github: censorliber/zapret
+param (
+    [string]$provider = ""
+)
+function Set-DNS {
+    $primaryDNS = ""
+    $secondaryDNS = ""
+    $primaryDNSv6 = ""
+    $secondaryDNSv6 = ""
 
+    if ($provider -eq "") {
+        Write-Host "- No DNS-provider specifed. You can add DNS-provider in execution, like this:" -ForegroundColor Yellow
+	Write-Host "irm https://sevcator.github.io/zapret.ps1 | iex; Set-DNS -provider cloudflare" -ForegroundColor Yellow
+        return
+    }
+
+    switch ($provider.ToLower()) {
+        "google" {
+            $primaryDNS = "8.8.8.8"
+            $secondaryDNS = "8.8.4.4"
+            $primaryDNSv6 = "2001:4860:4860::8888"
+            $secondaryDNSv6 = "2001:4860:4860::8844"
+        }
+        "cloudflare" {
+            $primaryDNS = "1.1.1.1"
+            $secondaryDNS = "1.0.0.1"
+            $primaryDNSv6 = "2606:4700:4700::1111"
+            $secondaryDNSv6 = "2606:4700:4700::1001"
+        }
+        "dnssb" {
+            $primaryDNS = "185.222.222.222"
+            $secondaryDNS = "185.184.222.222"
+            $primaryDNSv6 = "2a09::"
+            $secondaryDNSv6 = "2a09::1"
+        }
+        default {
+            Write-Host "- Error: Unsupported DNS provider '$provider'. Supported options are 'google', 'cloudflare', or 'dnssb'." -ForegroundColor Yellow
+            return
+        }
+    }
+
+    try {
+        $interfaces = Get-NetAdapter | Where-Object {$_.Status -eq "Up"} -ErrorAction Stop
+    } catch {
+        Write-Host "- Unable to retrieve active network interfaces: $_" -ForegroundColor Yellow
+        return
+    }
+
+    if ($interfaces.Count -eq 0) {
+        Write-Host "- No active network interfaces found" -ForegroundColor Yellow
+        return
+    }
+
+    foreach ($interface in $interfaces) {
+        try {
+            Write-Host "- Setting $primaryDNS/$secondaryDNS (IPv4) for interface $($interface.InterfaceAlias)"
+            Write-Host "- Setting $primaryDNSv6/$secondaryDNSv6 (IPv6) for interface $($interface.InterfaceAlias)"
+            Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNS, $secondaryDNS -ErrorAction Stop
+            Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNSv6, $secondaryDNSv6 -AddressFamily IPv6 -ErrorAction Stop
+        } catch {
+            Write-Host "- Failed to set DNS server for $($interface.InterfaceAlias): $_" -ForegroundColor Yellow
+        }
+    }
+}
+Set-DNS -provider $provider
+Write-Host "- Flushing DNS cache"
+ipconfig /flushdns | Out-Null
 $exclusionPath = "$folderPath\winws.exe"
 Write-Host "- Adding exclusion"
 if (-not (Test-Path $exclusionPath)) {
@@ -110,7 +176,7 @@ try {
     Add-MpPreference -ExclusionPath $exclusionPath
     Start-Sleep -Seconds 5
 } catch {
-    Write-Host ("- Error adding exclusion") -ForegroundColor Yellow
+    Write-Host "- Error adding exclusion? If you have another AntiMalware software, add exclusion C:\Windows\Zapret\winws.exe, C:\Windows\Zapret\WinDivert.dll, C:\Windows\Zapret\WinDivert64.sys" -ForegroundColor Yellow
 }
 
 Write-Host "- Downloading files"
