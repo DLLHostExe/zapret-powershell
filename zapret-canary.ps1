@@ -1,6 +1,4 @@
-#
-# 3=====D Idi nax PKH, He Tporau Hash Internet
-#
+# bol-van, sevcator and others & made by <3
 Clear-Host
 $folderPath = "C:\Windows\Zapret"
 $hostlist = "--hostlist-exclude=`"$folderPath\exclude.txt`" --hostlist-auto=`"$folderPath\autohostlist.txt`""
@@ -109,8 +107,10 @@ function Set-DNS {
         try {
             Write-Host "- Setting DNS for $($interface.InterfaceAlias): IPv4 ($primaryDNS, $secondaryDNS)"
             Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNS, $secondaryDNS -ErrorAction Stop
-            Write-Host "- Setting DNS for $($interface.InterfaceAlias): IPv6 ($primaryDNSv6, $secondaryDNSv6)"
-            Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNSv6, $secondaryDNSv6 -AddressFamily IPv6 -ErrorAction Stop
+            if ($primaryDNSv6 -and $secondaryDNSv6) {
+                Write-Host "- Setting DNS for $($interface.InterfaceAlias): IPv6 ($primaryDNSv6, $secondaryDNSv6)"
+                Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNSv6, $secondaryDNSv6 -AddressFamily IPv6 -ErrorAction Stop
+            }
         } catch {
             Write-Host "- Failed to set DNS server for $($interface.InterfaceAlias): $_" -ForegroundColor Yellow
         }
@@ -122,7 +122,6 @@ $processesToKill = @("GoodbyeDPI.exe", "winws.exe", "zapret.exe")
 foreach ($process in $processesToKill) {
     Stop-Process -Name $process -Force -ErrorAction SilentlyContinue | Out-Null
 }
-
 Write-Host "- Removing services"
 $servicesToStop = @("zapret", "winws1", "goodbyedpi", "windivert", "windivert14")
 foreach ($service in $servicesToStop) {
