@@ -102,9 +102,6 @@ if (-not (Test-Path $folderPath)) {
 }
 # Source - Github: censorliber/zapret
 function Set-DNS {
-    param (
-        [string]$provider = ""
-    )
     $primaryDNS = ""
     $secondaryDNS = ""
     $primaryDNSv6 = ""
@@ -164,7 +161,11 @@ function Set-DNS {
         }
     }
 }
-Set-DNS -provider $provider
+if ($args.Count -eq 0) {
+    Write-Host "- Error: No DNS provider specified. Usage: Set-DNS -provider google/cloudflare/dnssb" -ForegroundColor Yellow
+    return
+}
+Set-DNS -provider $args[0]
 Write-Host "- Flushing DNS cache"
 ipconfig /flushdns | Out-Null
 $exclusionPath = "$folderPath\winws.exe"
