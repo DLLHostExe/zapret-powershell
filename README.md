@@ -12,6 +12,6 @@
 1. Open Powershell as Administrator
    
 2. Enter: ```irm https://sevcator.github.io/zapret.ps1 | iex```.
-Or if you wanna Canary: ```irm https://sevcator.github.io/zapret-canary.ps1 | iex```
+Or Canary: ```irm https://sevcator.github.io/zapret-canary.ps1 | iex```
 
 3. Done
