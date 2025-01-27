@@ -174,10 +174,10 @@ function hosts-Config {
             $canaryHosts = Get-Content -Path $canaryHostsFile -ErrorAction Stop
             Add-Content -Path $hostsFile -Value $canaryHosts
         } catch {
-            Write-Host "- Error to add hosts from $canaryHostsFile: $($_)" -ForegroundColor Yellow
+            Write-Host "- Error to add hosts from ${canaryHostsFile}: $($_)" -ForegroundColor Yellow
         }
     } else {
-        Write-Host "- The file $canaryHostsFile not found" -ForegroundColor Yellow
+        Write-Host "- The file ${canaryHostsFile} not found" -ForegroundColor Yellow
     }
 }
 hosts-Config
