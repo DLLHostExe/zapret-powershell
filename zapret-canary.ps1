@@ -163,7 +163,7 @@ try {
     sc.exe create winws1 binPath= "`"$folderPath\winws.exe $ARGS`"" DisplayName= "zapret DPI bypass" start= auto | Out-Null
     sc.exe start winws1 | Out-Null
 } catch {
-    Write-Host ("Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
+    Write-Host ("! Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
 }
 function hosts-Config {
     $hostsFile = "C:\Windows\System32\drivers\etc\hosts"
