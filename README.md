@@ -12,7 +12,7 @@
 1. Open Powershell as Administrator
    
 2. Enter:
-3. For Stable: <sub>irm https://sevcator.github.io/zapret.ps1 | iex</sub>
-4. For Canary (with addons): <sub>irm https://sevcator.github.io/zapret-canary.ps1 | iex</sub>
+- For Stable: <sub>irm https://sevcator.github.io/zapret.ps1 | iex</sub>
+- For Canary (with addons): <sub>irm https://sevcator.github.io/zapret-canary.ps1 | iex</sub>
 
 5. Done
