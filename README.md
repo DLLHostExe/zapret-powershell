@@ -22,4 +22,4 @@ irm https://sevcator.github.io/zapret.ps1 | iex
 irm https://sevcator.github.io/zapret-canary.ps1 | iex
 ```
 
-5. Done
+3. Done
