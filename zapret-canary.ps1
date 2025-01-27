@@ -1,11 +1,13 @@
 # bol-van, sevcator and others & made by <3
 Clear-Host
 $folderPath = "C:\Windows\Zapret"
-$hostlist = "--hostlist-exclude=`"$folderPath\list-exclude.txt`" --hostlist-auto=`"$folderPath\list-auto.txt`""
+$autohostlist = "--hostlist-exclude=`"$folderPath\list-exclude.txt`" --hostlist-auto=`"$folderPath\list-auto.txt`""
+$hostlist = "--hostlist=`"$folderPath\list.txt`""
 $ARGS = "--wf-tcp=80,443 --wf-udp=80,443,50000-50099 "
+$ARGS += "--filter-tcp=80 --dpi-desync=fake,fakedsplit --dpi-desync-autottl=2 --dpi-desync-fooling=md5sig $autohostlist --new "
 $ARGS += "--filter-udp=443 $hostlist --dpi-desync=fake --dpi-desync-repeats=6 --dpi-desync-fake-quic=`"$folderPath\quic-google.bin`" --new "
 $ARGS += "--filter-udp=443 --dpi-desync=fake --dpi-desync-repeats=11 $autohostlist --new "
-$ARGS += "--filter-udp=50000-50100 --ipset=$MODPATH/ipset-discord.txt --dpi-desync=fake --dpi-desync-any-protocol --dpi-desync-cutoff=d3 --dpi-desync-repeats=6 --new "
+$ARGS += "--filter-udp=50000-50100 --ipset=`"$folderPath\ipset-discord.txt`" --dpi-desync=fake --dpi-desync-any-protocol --dpi-desync-cutoff=d3 --dpi-desync-repeats=6 --new "
 $ARGS += "--filter-tcp=443 $hostlist --dpi-desync=fake --dpi-desync-autottl=2 --dpi-desync-repeats=6 --dpi-desync-fooling=badseq --dpi-desync-fake-tls=`"$folderPath\tls-google.bin`" "
 $ARGS += "--filter-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-split-pos=midsld --dpi-desync-repeats=6 --dpi-desync-fooling=badseq,md5sig $autohostlist --new"
 Write-Host "  ______                    _                                          "
@@ -16,7 +18,7 @@ Write-Host "  / /_| (_| | |_) | | |  __/ |_      | (_| (_| | | | | (_| | |  | |_
 Write-Host " /_____\__,_| .__/|_|  \___|\__|      \___\__,_|_| |_|\__,_|_|   \__, |"
 Write-Host "            | |                                                   __/ |"
 Write-Host "            |_|                                                  |___/ "
-Write-Host "Installation with addons of bol-van software. @ follow sevcator.t.me !!"
+Write-Host "Installation with addons of bol-van software @ weird things are there!!"
 function Check-Admin {
     $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object System.Security.Principal.WindowsPrincipal($identity)
@@ -24,7 +26,7 @@ function Check-Admin {
 }
 if (-not (Check-Admin)) {
     Add-Type -AssemblyName System.Windows.Forms 
-    Write-Host "- Run PowerShell as administrator rights!"
+    Write-Host "! Run PowerShell as administrator rights!"
     return
 }
 $initialDirectory = Get-Location
@@ -33,7 +35,7 @@ $windows10Version = New-Object System.Version(10, 0)
 if ($version -gt $windows10Version) {
     Write-Output "- Windows version: $version"
 } else {
-    Write-Host "- Your version of Windows is old!"
+    Write-Host "! Your version of Windows is old!"
     return
 }
 function Check-ProcessorArchitecture {
@@ -43,7 +45,7 @@ function Check-ProcessorArchitecture {
 if (Check-ProcessorArchitecture) {
     Write-Host "- CPU Architecture is 64-bit"
 } else {
-    Write-Host "- CPU Architecture is not 64-bit"
+    Write-Host "! CPU Architecture is not 64-bit"
     return
 }
 if (Test-Path "$folderPath\uninstall.cmd") {
@@ -57,27 +59,26 @@ function Set-DNS {
     try {
         $interfaces = Get-NetAdapter | Where-Object { $_.Status -eq "Up" } -ErrorAction Stop
     } catch {
-        Write-Host "- Failed to get active network adapters: $_" -ForegroundColor Yellow
+        Write-Host "! Failed to get active network adapters: $_" -ForegroundColor Yellow
         return
     }
 
     if ($interfaces.Count -eq 0) {
-        Write-Host "- The network adapters not found" -ForegroundColor Red
+        Write-Host "! The network adapters not found" -ForegroundColor Red
         return
     }
 
     foreach ($interface in $interfaces) {
         try {
-            Write-Host "- Configuring DNS for $($interface.InterfaceAlias)"
+            Write-Host "- Configuring adapter: $($interface.InterfaceAlias)"
             Set-DnsClientServerAddress -InterfaceAlias $interface.InterfaceAlias -ServerAddresses $primaryDNS, $secondaryDNS -ErrorAction Stop
-
-            Write-Host "- Disabling IPv6 for $($interface.InterfaceAlias)"
             Disable-NetAdapterBinding -Name $interface.InterfaceAlias -ComponentID ms_tcpip6 -ErrorAction Stop
         } catch {
-            Write-Host "- Failed set configuration to adapter $($interface.InterfaceAlias): $_" -ForegroundColor Yellow
+            Write-Host "! Failed set configuration to adapter $($interface.InterfaceAlias): $_" -ForegroundColor Yellow
         }
     }
 }
+Write-Host "- Configuring DNS @ censorliber/zapret"
 Set-DNS
 Write-Host "- Terminating processes"
 $processesToKill = @("GoodbyeDPI.exe", "winws.exe", "zapret.exe")
@@ -113,7 +114,7 @@ if (Test-Path $folderPath) {
         try {
             Remove-Item -Path $file.FullName -Force -ErrorAction Stop
         } catch {
-            Write-Warning "Failed to remove $($file.FullName): $_"
+            Write-Host "! Failed to remove $($file.FullName): $_"
         }
     }
 } else {
@@ -130,10 +131,10 @@ if (-not (Test-Path $exclusionPath)) {
     New-Item -Path $exclusionPath -ItemType File | Out-Null
 }
 try {
-    Add-MpPreference -ExclusionPath $exclusionPath
+    Add-MpPreference -ExclusionPath $exclusionPath -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 5
 } catch {
-    Write-Host "- Error adding exclusion? If you have another AntiMalware software, add exclusion C:\Windows\Zapret\winws.exe, C:\Windows\Zapret\WinDivert.dll, C:\Windows\Zapret\WinDivert64.sys" -ForegroundColor Yellow
+    Write-Host "! Error adding exclusion? If you have another AntiMalware software, add exclusion C:\Windows\Zapret\winws.exe, C:\Windows\Zapret\WinDivert.dll, C:\Windows\Zapret\WinDivert64.sys" -ForegroundColor Yellow
 }
 Write-Host "- Downloading files"
 $files = @(
@@ -144,9 +145,10 @@ $files = @(
     @{Url = "https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/ipset-discord.txt"; Name = "ipset-discord.txt"},
     @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/list.txt"; Name = "list.txt"},
     @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/list-exclude.txt"; Name = "list-exclude.txt"},
-    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/tls_clienthello_www_google_com.bin"; Name = "tls-google.bin"}
-    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/quic_initial_www_google_com.bin"; Name = "quic-google.bin"}
-    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/uninstall.cmd"; Name = "uninstall.cmd"}
+    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/tls_clienthello_www_google_com.bin"; Name = "tls-google.bin"},
+    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/quic_initial_www_google_com.bin"; Name = "quic-google.bin"},
+    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/uninstall.cmd"; Name = "uninstall.cmd"},
+    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/canary-hosts"; Name = "canary-hosts"}
 )
 foreach ($file in $files) {
     try {
@@ -167,17 +169,27 @@ function hosts-Config {
     $hostsFile = "C:\Windows\System32\drivers\etc\hosts"
     $canaryHostsFile = "canary-hosts"
 
-    Write-Host "- Modifying hosts"
-    
+    Write-Host "- Modifying hosts @ t.me/immalware/1228"
+
+    if (-not (Test-Path $hostsFile)) {
+        New-Item -Path $hostsFile -ItemType File -Force
+    }
+
     if (Test-Path $canaryHostsFile) {
         try {
             $canaryHosts = Get-Content -Path $canaryHostsFile -ErrorAction Stop
-            Add-Content -Path $hostsFile -Value $canaryHosts
+            $existingHosts = Get-Content -Path $hostsFile
+
+            foreach ($line in $canaryHosts) {
+                if ($existingHosts -notcontains $line) {
+                    Add-Content -Path $hostsFile -Value $line
+                }
+            }
         } catch {
-            Write-Host "- Error to add hosts from ${canaryHostsFile}: $($_)" -ForegroundColor Yellow
+            Write-Host "! Error to add hosts from ${canaryHostsFile}: $($_)" -ForegroundColor Yellow
         }
     } else {
-        Write-Host "- The file ${canaryHostsFile} not found" -ForegroundColor Yellow
+        Write-Host "! The file ${canaryHostsFile} not found" -ForegroundColor Yellow
     }
 }
 hosts-Config
