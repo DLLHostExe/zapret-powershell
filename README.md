@@ -2,7 +2,7 @@
 > I am not responsible for any of your actions! This script is created for testing purposes.
 
 <p align="center"><img src="https://raw.githubusercontent.com/gist/Xainey/d5bde7d01dcbac51ac951810e94313aa/raw/6c858c46726541b48ddaaebab29c41c07a196394/PowerShell.svg" alt="Powershell"></p>
-<p align="center"><sup>zapret For PowerShell</sup></p>
+<h1 align="center">zapret for PowerShell</h1>
 
 ## For Windows 10-11
 
