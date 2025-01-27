@@ -11,7 +11,7 @@
 ## For Windows 10-11
 1. Open Powershell as Administrator
    
-2. Enter:
+2. Enter the command:
 - For Stable:
 ```
 irm https://sevcator.github.io/zapret.ps1 | iex
