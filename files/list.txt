@@ -42,5 +42,7 @@ betterttv.net
 10tv.app
 lolz.guru
 zelenka.guru
-secure.soundcloud.com
+soundcloud.com
+snd.cloud
+soundcloud.cloud
 steamstatic.com
