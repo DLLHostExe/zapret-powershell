@@ -1,19 +1,15 @@
-#
-# 3=====D Idi nax PKH, He Tporau Hash Internet
-#
+# xDD
 Clear-Host
 $folderPath = "C:\Windows\Zapret"
-$hostlist = "--hostlist-exclude=`"$folderPath\exclude.txt`" --hostlist-auto=`"$folderPath\autohostlist.txt`""
+$autohostlist = "--hostlist-exclude=`"$folderPath\list-exclude.txt`" --hostlist-auto=`"$folderPath\list-auto.txt`""
+$hostlist = "--hostlist=`"$folderPath\list.txt`""
 $ARGS = "--wf-tcp=80,443 --wf-udp=80,443,50000-50099 "
-$ARGS += "--filter-tcp=80 --dpi-desync=fake,fakedsplit --dpi-desync-autottl=2 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=`"$folderPath\tls.bin`" $hostlist --new "
-$ARGS += "--filter-tcp=443 --hostlist=`"$folderPath\google.txt`" --dpi-desync=fake,multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=`"$folderPath\tls.bin`" --new "
-$ARGS += "--filter-tcp=80 --hostlist=`"$folderPath\google.txt`" --dpi-desync=fake,multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=`"$folderPath\tls.bin`" --new "
-$ARGS += "--filter-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-split-pos=midsld --dpi-desync-repeats=6 --dpi-desync-fooling=badseq,md5sig --dpi-desync-fake-tls=`"$folderPath\tls.bin`" $hostlist --new "
-$ARGS += "--filter-udp=443 --hostlist=`"$folderPath\google.txt`" --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic=`"$folderPath\quic.bin`" --new "
-$ARGS += "--filter-udp=80 --hostlist=`"$folderPath\google.txt`" --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic=`"$folderPath\quic.bin`" --new "
-$ARGS += "--filter-udp=80 --dpi-desync=fake --dpi-desync-repeats=11 $hostlist --new "
-$ARGS += "--filter-udp=443 --dpi-desync=fake --dpi-desync-repeats=11 $hostlist --new "
-$ARGS += "--filter-udp=50000-50099 --ipset=`"$folderPath\ipset-discord.txt`" --dpi-desync=fake --dpi-desync-repeats=6 --dpi-desync-any-protocol --dpi-desync-cutoff=n4"
+$ARGS += "--filter-tcp=80 --dpi-desync=fake,fakedsplit --dpi-desync-autottl=2 --dpi-desync-fooling=md5sig $autohostlist --new "
+$ARGS += "--filter-tcp=443 $hostlist --dpi-desync=fake,multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=`"$folderPath\tls-google.bin`" --new "
+$ARGS += "--filter-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-split-pos=midsld --dpi-desync-repeats=6 --dpi-desync-fooling=badseq,md5sig $autohostlist --new "
+$ARGS += "--filter-udp=443 $hostlist --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic=`"$folderPath\quic-google.bin`" --new "
+$ARGS += "--filter-udp=443 --dpi-desync=fake --dpi-desync-repeats=11 $autohostlist --new "
+$ARGS += "--filter-udp=50000-50099 --ipset=`"$folderPath\ipset-discord.txt`" --dpi-desync=fake --dpi-desync-repeats=6 --dpi-desync-any-protocol --dpi-desync-cutoff=n4 --new "
 Write-Host "  ______                         _   "
 Write-Host " |___  /                        | |  "
 Write-Host "    / /  __ _  _ __   _ __  ___ | |_ "
@@ -30,7 +26,7 @@ function Check-Admin {
 }
 if (-not (Check-Admin)) {
     Add-Type -AssemblyName System.Windows.Forms 
-    Write-Host "- Run PowerShell as administrator rights!"
+    Write-Host "! Run PowerShell as administrator rights!"
     return
 }
 $initialDirectory = Get-Location
@@ -39,7 +35,7 @@ $windows10Version = New-Object System.Version(10, 0)
 if ($version -gt $windows10Version) {
     Write-Output "- Windows version: $version"
 } else {
-    Write-Host "- Your version of Windows is old!"
+    Write-Host "! Your version of Windows is old!"
     return
 }
 function Check-ProcessorArchitecture {
@@ -49,7 +45,7 @@ function Check-ProcessorArchitecture {
 if (Check-ProcessorArchitecture) {
     Write-Host "- CPU Architecture is 64-bit"
 } else {
-    Write-Host "- CPU Architecture is not 64-bit"
+    Write-Host "! CPU Architecture is not 64-bit"
     return
 }
 if (Test-Path "$folderPath\uninstall.cmd") {
@@ -89,7 +85,7 @@ if (Test-Path $folderPath) {
         try {
             Remove-Item -Path $file.FullName -Force -ErrorAction Stop
         } catch {
-            Write-Warning "Failed to remove $($file.FullName): $_"
+            Write-Warning "! Failed to remove $($file.FullName): $_"
         }
     }
 } else {
@@ -118,11 +114,10 @@ $files = @(
     @{Url = "https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/cygwin1.dll"; Name = "cygwin1.dll"},
     @{Url = "https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/winws.exe"; Name = "winws.exe"},
     @{Url = "https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/ipset-discord.txt"; Name = "ipset-discord.txt"},
-    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/autohostlist.txt"; Name = "autohostlist.txt"},
-    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/google.txt"; Name = "google.txt"},
-    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/exclude.txt"; Name = "exclude.txt"},
-    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/tls_clienthello_www_google_com.bin"; Name = "tls.bin"}
-    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/quic_initial_www_google_com.bin"; Name = "quic.bin"}
+    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/list.txt"; Name = "list.txt"},
+    @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/list-exclude.txt"; Name = "list-exclude.txt"},
+    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/tls_clienthello_www_google_com.bin"; Name = "tls-google.bin"},
+    @{Url = "https://github.com/bol-van/zapret/raw/refs/heads/master/files/fake/quic_initial_www_google_com.bin"; Name = "quic-google.bin"},
     @{Url = "https://raw.githubusercontent.com/sevcator/zapret-powershell/refs/heads/main/files/uninstall.cmd"; Name = "uninstall.cmd"}
 )
 foreach ($file in $files) {
@@ -138,7 +133,7 @@ try {
     sc.exe create winws1 binPath= "`"$folderPath\winws.exe $ARGS`"" DisplayName= "zapret DPI bypass" start= auto | Out-Null
     sc.exe start winws1 | Out-Null
 } catch {
-    Write-Host ("Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
+    Write-Host ("! Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
 }
 Write-Host "- Done!"
 Write-Host "- To remove Zapret, run script located in $folderPath\uninstall.cmd as administrator!"
