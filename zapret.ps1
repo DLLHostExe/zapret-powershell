@@ -29,15 +29,6 @@ if (-not (Check-Admin)) {
     Write-Host "! Run PowerShell as administrator rights!"
     return
 }
-$initialDirectory = Get-Location
-$version = [System.Environment]::OSVersion.Version
-$windows10Version = New-Object System.Version(10, 0)
-if ($version -gt $windows10Version) {
-    Write-Output "- Windows version: $version"
-} else {
-    Write-Host "! Your version of Windows is old!"
-    return
-}
 function Check-ProcessorArchitecture {
     $processor = Get-WmiObject -Class Win32_Processor
     return $processor.AddressWidth -eq 64
